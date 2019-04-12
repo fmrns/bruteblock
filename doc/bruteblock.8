@@ -73,9 +73,9 @@ the list if needed so.
 Configuration file for bruteblock utility allows you to set following
 values:
 .Bl -tag -width indent 
-.It regexp
+.It regexp, regexp0, regexp1, ..., regexp9
 regular expression in perl-compatible format that is used to extract
-failed password attempts from log files.
+failed password attempts from log files. Case insensitive.
 .It max_count, within_time
 defines time interval and maximum number of failed password attempts
 during that interval. If the number is exceeded by specific IP,
@@ -86,6 +86,13 @@ the table, thus being unblocked.
 .It ipfw2_table_no
 number of ipfw2 table to add bad IPs to. Must match -t parameter
 of bruteblockd.
+.It ip4prefixlen
+number of IPv4 prefix length(cidr). Default is 32(full bits).
+.It ip6prefixlen
+number of IPv6 prefix length(cidr). Default is 128(full bits).
+.It ip4inserts6to4
+add 6to4 address(2002::) additionally if this is set to yes. Default
+is no.
 .El
 .Sh EXAMPLE (SSH)
 First, you need to establish log processing to determine attacker's

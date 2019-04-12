@@ -1,3 +1,25 @@
+0.1.0-fms forked from trunk(as of 2016/4/22), on sf.net //svn.code.sf.net/p/bruteblock/code/trunk
+    + added prefix length(cidr).
+    + added displaying the name of the triggering rule.
+    + supported IPv6. and also:
+      + addresses with bracekts are accepted.
+        e.g. [2001:db8::]
+      + inserts an additional IPv4 address if the given IPv6 address
+        is v4-mapped or 6to4.
+      + inserts an additional 6to4 address, when ip4inserts6to4 = yes.
+    # simplify codes for max_count.
+    # fixed calcuration of difference of times between Y2038 wrap around.
+    # added a sample for feeding ipfw log.
+
+0.0.6
+    + added rc.d startup script provided by Dmitry Marakasov
+    + added configuration for pureftpd (provided by maserg at gmail.com)
+    # max_count=1 now works correctly (patch by Fumiyuki Shimizu)
+    # calloc'ed area is not free'd on the case ipfw2 fails 
+      (patch by Fumiyuki Shimizu)
+    # Documentation fixes by Fumiyuki Shimizu
+    # Regular expressions for SSH configuration updated
+
 0.0.5 - 20.08.06 (bugfix release)
     + added configuration file for the proftpd daemon
     # fixed max_count processing - thanks to Gray for reporting
@@ -5,7 +27,7 @@
 
 0.0.4 - 13.08.06
     + now its possible to specify up to 10 additional regexps
-    + regexps like (:?(ip1)|(ip2)) now handling correctly
+    + regexps like (?:(ip1)|(ip2)) now handling correctly
 
 0.0.3 - 03.08.06 (bugfix release)
     # Fixed compilation on FreeBSD < 6.1 (pidfile_*() related)

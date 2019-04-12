@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <limits.h>
+#include <time.h>
 #include <err.h>
 #include <stdlib.h>
 #include <syslog.h>
@@ -10,12 +11,10 @@
 #include "pidfile.h"
 #include <sysexits.h>
 
+#include "bruteblock.h"
+
 int		ipfw2_table_no = -1;
 static int	exit_requested = 0;
-
-int		process_record(char *host, unsigned int exptime);
-int		table_handler(int ac, char *av[]);
-int		process_record(char *host, unsigned int exptime);
 
 static void
 handle_sigs(int __unused sig)
@@ -38,6 +37,34 @@ usage(void)
 	exit(1);
 }
 
+int 
+delete_host(const char *host, int prefixlen, ipfw_optval_t exptime)
+{
+	int		rc = 0;
+	char		mode      [] = IPFW_CMD_TABLE;
+	char		table     [16];
+	char		ipaddr    [128];	/* maxlen: xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx/xxx */
+	char		command   [] = IPFW_CMD_TABLE_DEL;
+#define ARGC	4
+	char	       *argv[ARGC];
+
+	snprintf(table, sizeof(table), "%d", ipfw2_table_no);
+	snprintf(ipaddr, sizeof(ipaddr), "%s/%d", host, prefixlen);
+
+	argv[0] = mode;
+	argv[1] = table;
+	argv[2] = command;
+	argv[3] = ipaddr;
+
+	/* See bruteblock.h for (ipfw_optval_t) */
+	if ((s_ipfw_optval_t) ((ipfw_optval_t) time(NULL) - exptime) > 0) {
+		/* e.g. (s_ipfw_opt_val) ((ipfw_optval_t) 1 - (ipfw_optval_t) 0xFFFFFFFF) > 0: is true  */
+		syslog(LOG_INFO, "Removing host %s from table %s", argv[3], argv[1]);
+		rc = ipfw_table_handler(ARGC, argv);
+	}
+	return 0;
+}
+
 int
 main(int ac, char *av[])
 {
@@ -48,9 +75,9 @@ main(int ac, char *av[])
 	const char     *pid_file = NULL;
 	struct pidfh   *pfh = NULL;
 
-	char		mode      [] = "table";
+	char		mode      [] = IPFW_CMD_TABLE;
 	char		table     [100] = "";
-	char		command   [] = "list";
+	char		command   [] = IPFW_CMD_TABLE_LIST;
 
 	char          **argv;
 
@@ -116,7 +143,7 @@ main(int ac, char *av[])
 			errx(EX_OSERR, "Failed to become a daemon");
 		}
 	}
-	
+
 	if (pid_file) {
 		pidfile_write(pfh);
 	}
@@ -131,7 +158,7 @@ main(int ac, char *av[])
 			break;
 		}
 		snprintf(table, sizeof(table), "%d", ipfw2_table_no);
-		rc = table_handler(argc, argv);
+		rc = ipfw_table_handler(argc, argv);
 		sleep(sleep_time);
 	}
 

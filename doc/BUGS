@@ -2,7 +2,8 @@ Known BUGZ:
 
 Hi priority
 * Log records like "last message was repeated x time" now ignored
+  - '-c' option of syslogd is useful for this case.
 
 Low priority
 * Add FAQ sections about pf, pcretest and sea piggs.
-
+* Separate wording of an internal table and a ipfw table.
